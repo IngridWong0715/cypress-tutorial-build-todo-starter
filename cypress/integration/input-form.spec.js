@@ -1,21 +1,22 @@
 describe('Input form', () => {
   beforeEach(() => {
-    cy.visit('/')
+    cy.seedAndVisit([])
   })
+
   it('focuses input on load', () => {
     cy.focused()
       .should('have.class', 'new-todo')
   })
 
   it('accepts input', () => {
-    const typedText = 'Buy milk'
+    const typedText = 'Buy Milk'
 
     cy.get('.new-todo')
       .type(typedText)
       .should('have.value', typedText)
   })
 
-  context('Form submission', () =>{
+  context('Form submission', () => {
     beforeEach(() => {
       cy.server()
     })
@@ -38,7 +39,7 @@ describe('Input form', () => {
         .and('contain', itemText)
     })
 
-    it('Shows an error message on a failed submission', () =>{
+    it('Shows an error message on a failed submission', () => {
       cy.route({
         url: '/api/todos',
         method: 'POST',
