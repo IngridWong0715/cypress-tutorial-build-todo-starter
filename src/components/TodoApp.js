@@ -4,6 +4,7 @@ import TodoForm from './TodoForm'
 import TodoList from './TodoList'
 import Footer from './Footer'
 import {saveTodo, loadTodos, destroyTodo, updateTodo} from '../lib/service'
+import {filterTodos} from '../lib/utils'
 
 
 export default class TodoApp extends Component {
@@ -37,18 +38,7 @@ export default class TodoApp extends Component {
       }))
   }
 
-  handleTodoSubmit (evt) {
-    evt.preventDefault()
-    const newTodo = {name: this.state.currentTodo, isComplete: false}
-    saveTodo(newTodo)
-      .then(({data}) => this.setState({
-        todos: this.state.todos.concat(data),
-        currentTodo: ''
-      }))
-      .catch(() => this.setState({error: true}))
-  }
-
-  handleToggle(id){
+  handleToggle (id) {
     const targetTodo = this.state.todos.find(t => t.id === id)
     const updated = {
       ...targetTodo,
@@ -63,8 +53,19 @@ export default class TodoApp extends Component {
       })
   }
 
+  handleTodoSubmit (evt) {
+    evt.preventDefault()
+    const newTodo = {name: this.state.currentTodo, isComplete: false}
+    saveTodo(newTodo)
+      .then(({data}) => this.setState({
+        todos: this.state.todos.concat(data),
+        currentTodo: ''
+      }))
+      .catch(() => this.setState({error: true}))
+  }
+
   render () {
-    const remaining = this.state.todos.filter( t => !t.isComplete).length
+    const remaining = this.state.todos.filter(t => !t.isComplete).length
     return (
       <Router>
         <div>
@@ -77,10 +78,12 @@ export default class TodoApp extends Component {
               handleNewTodoChange={this.handleNewTodoChange}/>
           </header>
           <section className="main">
+          <Route path='/:filter?' render={({match}) =>
             <TodoList
-              todos={this.state.todos}
+              todos={filterTodos(match.params.filter, this.state.todos)}
               handleDelete={this.handleDelete}
-              handleToggle={this.handleToggle}/>
+              handleToggle={this.handleToggle} />
+            } />
           </section>
           <Footer remaining={remaining} />
         </div>
